@@ -1,14 +1,15 @@
-#include <nan.h>
+#include <napi.h>
+#include <uv.h>
 
-void RunCallback(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-  v8::Local<v8::Function> cb = info[0].As<v8::Function>();
+void RunCallback(const Napi::CallbackInfo& info) {
+  Napi::Function cb = info[0].As<Napi::Function>();
   const unsigned argc = 1;
-  v8::Local<v8::Value> argv[argc] = { Nan::New("hello world").ToLocalChecked() };
-  Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+  Napi::Value argv[argc] = { Napi::String::New(env, "hello world") };
+  cb.MakeCallback(Napi::GetCurrentContext()->Global(), argc, argv);
 }
 
-void Init(v8::Local<v8::Object> exports, v8::Local<v8::Object> module) {
-  Nan::SetMethod(module, "exports", RunCallback);
+void Init(Napi::Object exports, Napi::Object module) {
+  Napi::SetMethod(module, "exports", RunCallback);
 }
 
-NODE_MODULE(addon, Init)
+NODE_API_MODULE(addon, Init)

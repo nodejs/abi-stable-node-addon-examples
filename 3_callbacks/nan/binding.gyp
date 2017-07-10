@@ -4,7 +4,7 @@
       "target_name": "addon",
       "sources": [ "addon.cc" ],
       "include_dirs": [
-        "<!(node -e \"require('nan')\")"
+        "<!(node -p \"require('node-api').include\")"
       ]
     }
   ]
