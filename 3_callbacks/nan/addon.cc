@@ -1,8 +1,6 @@
 #define NAPI_DISABLE_CPP_EXCEPTIONS
 
 #include <napi.h>
-#include <uv.h>
-
 
 void RunCallback(const Napi::CallbackInfo& info) {
   Napi::Function cb = info[0].As<Napi::Function>();
