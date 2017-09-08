@@ -7,7 +7,7 @@ void MyObject::Init(Napi::Env env, Napi::Object exports) {
 
   Napi::Function t = DefineClass(env, "MyObject", {
     InstanceMethod("plusOne", &MyObject::PlusOne),
-    InstanceMethod("getValue", &MyObject::GetValue),
+    InstanceMethod("value", &MyObject::GetValue),
     InstanceMethod("multiply", &MyObject::Multiply)
   });
 
