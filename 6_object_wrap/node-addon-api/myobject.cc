@@ -28,7 +28,7 @@ MyObject::MyObject(const Napi::CallbackInfo& info) : Napi::ObjectWrap<MyObject>(
   }
 
   Napi::Number value = info[0].As<Napi::Number>();
-  info.This().As<Napi::Object>().DefineProperty(Napi::PropertyDescriptor::Value("value", value, napi_default));
+  //info.This().As<Napi::Object>().DefineProperty(Napi::PropertyDescriptor::Value("value", value, napi_default));
   this->value_ = value.DoubleValue();
 }
 
@@ -52,8 +52,8 @@ Napi::Value MyObject::Multiply(const Napi::CallbackInfo& info) {
     multiple = info[0].As<Napi::Number>();
   }
 
-  Napi::Object obj = constructor.New({ Napi::Number::New(info.Env(), MyObject::GetValue(info).As<Napi::Number>().DoubleValue() * multiple.DoubleValue()) });
-  MyObject* myobj = MyObject::Unwrap(obj);
+  Napi::Object obj = constructor.New({ Napi::Number::New(info.Env(), this->value_ * multiple.DoubleValue()) });
+  //MyObject* myobj = MyObject::Unwrap(obj);
 
   return obj;
 }
