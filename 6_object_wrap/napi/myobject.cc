@@ -107,7 +107,7 @@ napi_value MyObject::GetValue(napi_env env, napi_callback_info info) {
   assert(status == napi_ok);
 
   napi_value num;
-  status = napi_create_number(env, obj->value_, &num);
+  status = napi_create_double(env, obj->value_, &num);
   assert(status == napi_ok);
 
   return num;
@@ -147,7 +147,7 @@ napi_value MyObject::PlusOne(napi_env env, napi_callback_info info) {
   obj->value_ += 1;
 
   napi_value num;
-  status = napi_create_number(env, obj->value_, &num);
+  status = napi_create_double(env, obj->value_, &num);
   assert(status == napi_ok);
 
   return num;
@@ -182,7 +182,7 @@ napi_value MyObject::Multiply(napi_env env, napi_callback_info info) {
 
   const int kArgCount = 1;
   napi_value argv[kArgCount];
-  status = napi_create_number(env, obj->value_ * multiple, argv);
+  status = napi_create_double(env, obj->value_ * multiple, argv);
   assert(status == napi_ok);
 
   napi_value instance;

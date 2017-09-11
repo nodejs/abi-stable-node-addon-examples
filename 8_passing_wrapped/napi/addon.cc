@@ -32,7 +32,7 @@ napi_value Add(napi_env env, napi_callback_info info) {
   assert(status == napi_ok);
 
   napi_value sum;
-  status = napi_create_number(env, obj1->Val() + obj2->Val(), &sum);
+  status = napi_create_double(env, obj1->Val() + obj2->Val(), &sum);
   assert(status == napi_ok);
 
   return sum;
