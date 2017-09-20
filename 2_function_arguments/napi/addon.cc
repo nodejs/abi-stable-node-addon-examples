@@ -36,7 +36,7 @@ napi_value Add(napi_env env, napi_callback_info info) {
   assert(status == napi_ok);
 
   napi_value sum;
-  status = napi_create_number(env, value0 + value1, &sum);
+  status = napi_create_double(env, value0 + value1, &sum);
   assert(status == napi_ok);
 
   return sum;

@@ -97,7 +97,7 @@ napi_value MyObject::PlusOne(napi_env env, napi_callback_info info) {
   obj->counter_ += 1;
 
   napi_value num;
-  status = napi_create_number(env, obj->counter_, &num);
+  status = napi_create_double(env, obj->counter_, &num);
   assert(status == napi_ok);
 
   return num;
