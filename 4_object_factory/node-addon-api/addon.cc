@@ -9,9 +9,8 @@ Napi::Object CreateObject(const Napi::CallbackInfo& info) {
   return obj;
 }
 
-void Init(Napi::Env env, Napi::Object exports, Napi::Object module) {
-  module.Set(Napi::String::New(env, "exports"),
-             Napi::Function::New(env, CreateObject));
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
+  return Napi::Function::New(env, CreateObject, "createObject");
 }
 
 NODE_API_MODULE(addon, Init)

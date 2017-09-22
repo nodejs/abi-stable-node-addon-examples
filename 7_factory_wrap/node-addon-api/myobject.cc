@@ -13,7 +13,7 @@ MyObject::MyObject(const Napi::CallbackInfo& info) : Napi::ObjectWrap<MyObject>(
 
 Napi::FunctionReference MyObject::constructor;
 
-void MyObject::Init(Napi::Env env, Napi::Object exports) {
+Napi::Object MyObject::Init(Napi::Env env, Napi::Object exports) {
   Napi::HandleScope scope(env);
 
   Napi::Function func = DefineClass(env, "MyObject", {
@@ -24,6 +24,7 @@ void MyObject::Init(Napi::Env env, Napi::Object exports) {
   constructor.SuppressDestruct();
 
   exports.Set("MyObject", func);
+  return exports;
 }
 
 Napi::Object MyObject::NewInstance(Napi::Value arg) {

@@ -21,9 +21,10 @@ Napi::Value Add(const Napi::CallbackInfo& info) {
   return num;
 }
 
-void Init(Napi::Env env, Napi::Object exports, Napi::Object module) {
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "add"),
-               Napi::Function::New(env, Add));
+              Napi::Function::New(env, Add));
+  return exports;
 }
 
 NODE_API_MODULE(addon, Init)

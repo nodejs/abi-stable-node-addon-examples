@@ -2,7 +2,7 @@
 
 Napi::FunctionReference MyObject::constructor;
 
-void MyObject::Init(Napi::Env env, Napi::Object exports) {
+Napi::Object MyObject::Init(Napi::Env env, Napi::Object exports) {
   Napi::HandleScope scope(env);
 
   Napi::Function func = DefineClass(env, "MyObject", {
@@ -11,10 +11,11 @@ void MyObject::Init(Napi::Env env, Napi::Object exports) {
     InstanceMethod("multiply", &MyObject::Multiply)
   });
 
-  constructor = Napi::Persistent(t);
+  constructor = Napi::Persistent(func);
   constructor.SuppressDestruct();
 
   exports.Set("MyObject", func);
+  return exports;
 }
 
 MyObject::MyObject(const Napi::CallbackInfo& info) : Napi::ObjectWrap<MyObject>(info)  {

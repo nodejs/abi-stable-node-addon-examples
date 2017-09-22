@@ -1,5 +1,4 @@
 #include <napi.h>
-#include <uv.h>
 
 void RunCallback(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
@@ -7,9 +6,8 @@ void RunCallback(const Napi::CallbackInfo& info) {
   cb.MakeCallback(env.Global(), { Napi::String::New(env, "hello world") });
 }
 
-void Init(Napi::Env env, Napi::Object exports, Napi::Object module) {
-  module.Set(Napi::String::New(env, "exports"),                                    \
-              Napi::Function::New(env, RunCallback));
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
+  return Napi::Function::New(env, RunCallback);
 }
 
 NODE_API_MODULE(addon, Init)

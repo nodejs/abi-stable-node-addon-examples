@@ -6,7 +6,7 @@
 
 class MyObject : public Napi::ObjectWrap<MyObject> {
  public:
-  static void Init(Napi::Env env, Napi::Object exports);
+  static Napi::Object Init(Napi::Env env, Napi::Object exports);
   static Napi::Object NewInstance(Napi::Value arg);
   MyObject(const Napi::CallbackInfo& info);
 
