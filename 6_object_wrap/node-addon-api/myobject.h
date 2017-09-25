@@ -2,7 +2,6 @@
 #define MYOBJECT_H
 
 #include <napi.h>
-#include <uv.h>
 
 class MyObject : public Napi::ObjectWrap<MyObject> {
  public:

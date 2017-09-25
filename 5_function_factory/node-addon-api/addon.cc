@@ -1,5 +1,4 @@
 #include <napi.h>
-#include <uv.h>
 
 Napi::String MyFunction(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();

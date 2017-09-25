@@ -1,5 +1,4 @@
 #include <napi.h>
-#include <uv.h>
 #include "myobject.h"
 
 Napi::Object CreateObject(const Napi::CallbackInfo& info) {
