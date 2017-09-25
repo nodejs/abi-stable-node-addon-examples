@@ -22,7 +22,7 @@ napi_value CreateObject(napi_env env, const napi_callback_info info) {
 napi_value Init(napi_env env, napi_value exports) {
   napi_value new_exports;
   napi_status status =
-      napi_create_function(env, "", -1, CreateObject, nullptr, &new_exports);
+      napi_create_function(env, "", NAPI_AUTO_LENGTH, CreateObject, nullptr, &new_exports);
   assert(status == napi_ok);
   return new_exports;
 }
