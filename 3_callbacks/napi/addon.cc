@@ -12,7 +12,7 @@ napi_value RunCallback(napi_env env, const napi_callback_info info) {
   napi_value cb = args[0];
 
   napi_value argv[1];
-  status = napi_create_string_utf8(env, "hello world", -1, argv);
+  status = napi_create_string_utf8(env, "hello world", NAPI_AUTO_LENGTH, argv);
   assert(status == napi_ok);
 
   napi_value global;
@@ -29,7 +29,7 @@ napi_value RunCallback(napi_env env, const napi_callback_info info) {
 napi_value Init(napi_env env, napi_value exports) {
   napi_value new_exports;
   napi_status status =
-      napi_create_function(env, "", -1, RunCallback, nullptr, &new_exports);
+      napi_create_function(env, "", NAPI_AUTO_LENGTH, RunCallback, nullptr, &new_exports);
   assert(status == napi_ok);
   return new_exports;
 }

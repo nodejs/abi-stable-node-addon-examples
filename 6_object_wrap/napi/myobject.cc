@@ -25,7 +25,7 @@ napi_value MyObject::Init(napi_env env, napi_value exports) {
 
   napi_value cons;
   status =
-      napi_define_class(env, "MyObject", -1, New, nullptr, 3, properties, &cons);
+      napi_define_class(env, "MyObject", NAPI_AUTO_LENGTH, New, nullptr, 3, properties, &cons);
   assert(status == napi_ok);
 
   status = napi_create_reference(env, cons, 1, &constructor);
