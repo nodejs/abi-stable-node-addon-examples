@@ -20,7 +20,7 @@ class PiWorker : public Napi::AsyncWorker {
   // this function will be run inside the main event loop
   // so it is safe to use V8 again
   void OnOK() {
-     Napi::HandleScope scope(Env());   
+    Napi::HandleScope scope(Env());   
     Callback().Call({Env().Undefined(), Napi::Number::New(Env(), estimate)});
   }
 
