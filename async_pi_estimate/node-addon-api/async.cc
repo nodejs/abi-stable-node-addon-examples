@@ -9,7 +9,7 @@ class PiWorker : public Napi::AsyncWorker {
   ~PiWorker() {}
 
   // Executed inside the worker-thread.
-  // It is not safe to access V8, or V8 data structures
+  // It is not safe to access JS engine data structure
   // here, so everything we need for input and output
   // should go on `this`.
   void Execute () {
@@ -18,7 +18,7 @@ class PiWorker : public Napi::AsyncWorker {
 
   // Executed when the async work is complete
   // this function will be run inside the main event loop
-  // so it is safe to use V8 again
+  // so it is safe to use JS engine data again
   void OnOK() {
     Napi::HandleScope scope(Env());   
     Callback().Call({Env().Undefined(), Napi::Number::New(Env(), estimate)});
