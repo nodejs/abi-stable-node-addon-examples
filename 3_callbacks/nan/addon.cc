@@ -1,14 +1,16 @@
-#include <nan.h>
+#define NAPI_DISABLE_CPP_EXCEPTIONS
 
-void RunCallback(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-  v8::Local<v8::Function> cb = info[0].As<v8::Function>();
+#include <napi.h>
+
+void RunCallback(const Napi::CallbackInfo& info) {
+  Napi::Function cb = info[0].As<Napi::Function>();
   const unsigned argc = 1;
-  v8::Local<v8::Value> argv[argc] = { Nan::New("hello world").ToLocalChecked() };
-  Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+  Napi::Value argv[argc] = { Napi::String::New(info.Env(), "hello world") };
+  cb.MakeCallback(info.Env().Global(), { argv[0] });
 }
 
-void Init(v8::Local<v8::Object> exports, v8::Local<v8::Object> module) {
-  Nan::SetMethod(module, "exports", RunCallback);
+void Init(Napi::Env env, Napi::Object exports, Napi::Object module) {
+  module.DefineProperty(Napi::PropertyDescriptor::Function("exports", RunCallback));
 }
 
-NODE_MODULE(addon, Init)
+NODE_API_MODULE(addon, Init)
