@@ -9,7 +9,6 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "node-addon-api": "*",
     "bindings": "*"
   }
 }
