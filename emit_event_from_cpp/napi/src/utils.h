@@ -9,7 +9,6 @@ class ThreadSafeQueue {
 private:
   std::queue<T> qu;
   std::mutex m;
-  std::condition_variable cv;
 public:
   bool push(T elem) {
     if (elem == nullptr) {
@@ -17,13 +16,11 @@ public:
     }
     std::unique_lock<std::mutex> lock(m);
     qu.push(elem);
-    cv.notify_one();
     return true;
   }
 
   bool next(T& elem) {
     std::unique_lock<std::mutex> lock(m);
-    cv.wait(lock, [&] (void) { return !qu.empty(); });
     if (qu.empty()) {
       return false;
     }
