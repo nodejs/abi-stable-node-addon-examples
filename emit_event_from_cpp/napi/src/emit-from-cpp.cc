@@ -28,11 +28,13 @@ struct MyData {
       payload(_payload) {}
 };
 
+// This is the thread mocking any native thread producing data
 static void threadRoutine(napi_itc_handle handle) {
+  // calling the thread safe function
   napi_itc_send(handle, new MyData("start", ""));
 
   for(int i = 0; i < 5; i++) {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     napi_itc_send(handle, new MyData("data", "..." + to_string(i)));
   }
 
@@ -40,32 +42,17 @@ static void threadRoutine(napi_itc_handle handle) {
   napi_itc_complete(handle);
 }
 
-static inline bool maybe_throw_unhandled(napi_env env) {
-  bool is_pending;
-  napi_is_exception_pending(env, &is_pending);
-  if (is_pending) {
-    napi_value fatal;
-    napi_get_and_clear_last_exception(env, &fatal);
-    napi_fatal_exception(env, fatal);
-    return false;
-  }
-  return true;
-}
-
 static void consumer(napi_env env, napi_itc_handle handle, void* userdata, void* eventdata) {
   cout << "in consumer\n";
   auto event = (MyData*)eventdata;
-  // AutoDelete<MyData> safe_del(event);
+  AutoDelete<MyData> safe_del(event);
 
-  napi_value func, argv[2];
+  napi_value func, argv[2], global;
+  napi_get_global(env, &global);
   napi_get_reference_value(env, (napi_ref)userdata, &func);
-  maybe_throw_unhandled(env);
   napi_create_string_utf8(env, event->type.c_str(), NAPI_AUTO_LENGTH, &argv[0]);
-  maybe_throw_unhandled(env);
   napi_create_string_utf8(env, event->payload.c_str(), NAPI_AUTO_LENGTH, &argv[1]);
-  maybe_throw_unhandled(env);
-  napi_call_function(env, nullptr, func, 2, argv, nullptr);
-  maybe_throw_unhandled(env);
+  napi_call_function(env, global, func, 2, argv, nullptr);
 }
 
 static void complete(napi_itc_handle handle, void* userdata) {

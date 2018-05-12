@@ -4,7 +4,6 @@ const EventEmitter = require("events").EventEmitter;
 const addon = require("bindings")("emit_from_cpp");
 
 const emitter = new EventEmitter();
-let handle;
 
 emitter.on("start", () => {
   console.log("### START ...");
@@ -15,8 +14,9 @@ emitter.on("data", evt => {
 
 emitter.on("end", () => {
   console.log("### END ###");
-  clearInterval(handle);
 });
 
+setTimeout(() => {
+  addon.callEmit(emitter.emit.bind(emitter));
+}, 3000);
 addon.callEmit(emitter.emit.bind(emitter));
-handle = setInterval(() => console.log("interval in JS"), 1000);
