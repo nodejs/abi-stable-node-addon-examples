@@ -63,7 +63,7 @@ class CallbackScope {
   public:
     CallbackScope(napi_env _env): env(_env) {
       napi_value resource_name, resource_object;
-      ITC_CALL(env, napi_open_handle_scope(env, &scope)); // create a new scope in this callback
+      ITC_CALL(env, napi_open_handle_scope(env, &scope));
       ITC_CALL(env, napi_create_object(env, &resource_object));
       ITC_CALL(env, napi_create_string_utf8(env, "itc_uv_resource", NAPI_AUTO_LENGTH, &resource_name));
       ITC_CALL(env, napi_async_init(env, resource_object, resource_name, &async_context));
@@ -111,7 +111,6 @@ static void uvCallback(uv_async_t* handle) {
   }
 }
 
-// extern
 EXTERN_C_START
 
 napi_status napi_itc_init(
@@ -150,7 +149,6 @@ void napi_itc_complete(napi_itc_handle handle) {
 }
 
 void napi_itc_send(napi_itc_handle handle, void* data) {
-  // used to queue up events, needs a handle
   ((napi_itc_handle_t*)handle)->consumerQu.push(data);
   uv_async_send(&((napi_itc_handle_t*)handle)->uv_async);
 }

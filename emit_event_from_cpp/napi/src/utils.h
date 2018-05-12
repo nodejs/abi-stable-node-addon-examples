@@ -24,7 +24,7 @@ public:
   bool next(T& elem) {
     std::unique_lock<std::mutex> lock(m);
     cv.wait(lock, [&] (void) { return !qu.empty(); });
-    if (qu.empty()) { // later wake up the lock for destroy, qu can be empty
+    if (qu.empty()) {
       return false;
     }
     elem = qu.front();
