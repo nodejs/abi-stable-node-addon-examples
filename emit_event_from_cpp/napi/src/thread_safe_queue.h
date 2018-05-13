@@ -28,21 +28,6 @@ public:
     qu.pop();
     return true;
   }
-
-  bool empty() {
-    std::unique_lock<std::mutex> lock(m);
-    return qu.empty();
-  }
-};
-
-template <class T>
-class AutoDelete
-{
-  public:
-    AutoDelete (T * p = 0) : ptr_(p) {}
-    ~AutoDelete () throw() { delete ptr_; }
-  private:
-    T *ptr_;
 };
 
 #endif

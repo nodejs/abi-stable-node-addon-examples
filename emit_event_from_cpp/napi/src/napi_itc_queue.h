@@ -20,10 +20,10 @@
 
 EXTERN_C_START
 
-typedef struct napi_itc_handle__ *napi_itc_handle;
+typedef struct napi_itc_handle__ *napi_itc_handle; // opaque pointer a la NAPI
 
 typedef void (*napi_itc_consumer_callback) (napi_env, napi_itc_handle, void*, void*);
-typedef void (*napi_itc_complete_callback) (napi_itc_handle, void*);
+typedef void (*napi_itc_complete_callback) (napi_env, napi_itc_handle, napi_status, void*);
 
 napi_status napi_itc_init(
   napi_env env,

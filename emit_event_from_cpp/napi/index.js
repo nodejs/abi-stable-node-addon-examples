@@ -5,18 +5,16 @@ const addon = require("bindings")("emit_from_cpp");
 
 const emitter = new EventEmitter();
 
-emitter.on("start", () => {
-  console.log("### START ...");
+emitter.on("start", name => {
+  console.log("### START ...", name);
 });
 emitter.on("data", evt => {
   console.log("event from addon >>", evt);
 });
 
-emitter.on("end", () => {
-  console.log("### END ###");
+emitter.on("end", name => {
+  console.log("### END ###", name);
 });
 
-setTimeout(() => {
-  addon.callEmit(emitter.emit.bind(emitter));
-}, 3000);
-addon.callEmit(emitter.emit.bind(emitter));
+addon.callEmit("producer1", emitter.emit.bind(emitter));
+addon.callEmit("producer2", emitter.emit.bind(emitter));

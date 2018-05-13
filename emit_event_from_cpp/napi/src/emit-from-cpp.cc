@@ -8,7 +8,6 @@
 #include <assert.h>
 
 #include "napi_itc_queue.h"
-#include "utils.h"
 
 // Helper
 #define NAPI_CALL(env, call)                                                   \
@@ -28,22 +27,33 @@ struct MyData {
       payload(_payload) {}
 };
 
+template <class T>
+class AutoDelete
+{
+  public:
+    AutoDelete (T * p = 0) : ptr_(p) {}
+    ~AutoDelete () throw() { delete ptr_; }
+  private:
+    T *ptr_;
+};
+
 // This is the thread mocking any native thread producing data
-static void threadRoutine(napi_itc_handle handle) {
+static void threadRoutine(napi_itc_handle handle, string name) {
   // calling the thread safe function
-  napi_itc_send(handle, new MyData("start", ""));
+  napi_itc_send(handle, new MyData("start", name));
 
   for(int i = 0; i < 5; i++) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    napi_itc_send(handle, new MyData("data", "..." + to_string(i)));
+    napi_itc_send(handle, new MyData("data", name + "..." + to_string(i)));
   }
 
-  napi_itc_send(handle, new MyData("end", ""));
+  napi_itc_send(handle, new MyData("end", name));
   napi_itc_complete(handle);
 }
 
+// this fonction is ran on the nodejs loop
 static void consumer(napi_env env, napi_itc_handle handle, void* userdata, void* eventdata) {
-  cout << "in consumer\n";
+  // cout << "in consumer\n";
   auto event = (MyData*)eventdata;
   AutoDelete<MyData> safe_del(event);
 
@@ -55,22 +65,29 @@ static void consumer(napi_env env, napi_itc_handle handle, void* userdata, void*
   napi_call_function(env, global, func, 2, argv, nullptr);
 }
 
-static void complete(napi_itc_handle handle, void* userdata) {
+// this function is ran on the nodejs loop
+static void complete(napi_env env, napi_itc_handle handle, napi_status exit_status, void* userdata) {
   // free up resources
+  // cout << "in complete\n";
+  napi_delete_reference(env, (napi_ref)userdata);
 }
 
 
 static napi_value CallEmit(napi_env env, napi_callback_info info) {
-  size_t argc = 1;
-  napi_value func;
+  size_t argc = 2;
+  napi_value argv[2];
   napi_ref func_ref;
-  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, &func, nullptr, nullptr));
-  NAPI_CALL(env, napi_create_reference(env, func, 1, &func_ref));
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+
+  char buf[200];
+  NAPI_CALL(env, napi_get_value_string_utf8(env, argv[0], buf, sizeof buf, nullptr));
+  NAPI_CALL(env, napi_create_reference(env, argv[1], 1, &func_ref));
 
   napi_itc_handle handle;
   NAPI_CALL(env, napi_itc_init(env, consumer, complete, (void*)func_ref, &handle));
 
-  thread t(threadRoutine, handle);
+  string thread_name(buf);
+  thread t(threadRoutine, handle, thread_name);
   t.detach();
   return nullptr;
 }

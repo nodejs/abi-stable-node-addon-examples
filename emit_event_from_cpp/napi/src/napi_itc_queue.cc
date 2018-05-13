@@ -1,5 +1,5 @@
 #include "napi_itc_queue.h"
-#include "utils.h"
+#include "thread_safe_queue.h"
 
 static inline void maybe_throw_fatal(napi_env env, napi_status status, int line) {
   bool is_pending;
@@ -36,29 +36,27 @@ static inline bool maybe_throw_unhandled(napi_env env) {
     if (status != napi_ok) { return status; }                                  \
   }
 
+// special value used to signal the uv_loop we are done pushing data
 #define QUEUE_STOP ((void*)-1)
 
 // static
 struct NapiItcHandle {
+  // uv_async_t must be first so a pointer to NapiItcHandle
+  // can be safely cast to a pointer of uv_async_t
   uv_async_t uv_async;
-  ThreadSafeQueue<void*> consumerQu;
   napi_itc_consumer_callback execute_cb;
   napi_itc_complete_callback complete_cb;
-  napi_env env;
+  napi_env env; // apparently safe to cache if used in nodejs uv loop
+  ThreadSafeQueue<void*> consumerQu;
   void* userdata;
 };
 typedef NapiItcHandle napi_itc_handle_t;
 
 static void uvFinalize(uv_handle_t* handle) {
-  auto hdl = (napi_itc_handle_t*)handle;
-  AutoDelete<napi_itc_handle_t> safe_del(hdl);
-
-  if (!hdl->complete_cb) {
-    return;
-  }
-  hdl->complete_cb((napi_itc_handle)hdl, hdl->userdata);
+  delete handle;
 }
 
+// usefull tool to setup and teardown the callback scope
 class CallbackScope {
   public:
     CallbackScope(napi_env _env): env(_env) {
@@ -83,27 +81,33 @@ class CallbackScope {
     napi_async_context async_context;
 };
 
+// happens in the uv loop
 static inline bool uvItcCallback(napi_itc_handle_t* hdl) {
   if (!hdl->execute_cb) {
     return false;
   }
 
   CallbackScope s(hdl->env);
-  while(!hdl->consumerQu.empty()) {
-    void* eventData;
-    hdl->consumerQu.next(eventData);
-    if (eventData == QUEUE_STOP) {
-      return false;
-    }
+  bool run = true;
+  void* eventData;
+  while(run && hdl->consumerQu.next(eventData)) {
     // should call the user defined callback
-    hdl->execute_cb(hdl->env, (napi_itc_handle)hdl, hdl->userdata, eventData);
+    if (eventData == QUEUE_STOP) {
+      hdl->complete_cb != nullptr
+        ? hdl->complete_cb(hdl->env, (napi_itc_handle)hdl, napi_ok, hdl->userdata)
+        : 0;
+      run = false;
+    } else {
+      hdl->execute_cb(hdl->env, (napi_itc_handle)hdl, hdl->userdata, eventData);
+    }
     if (!maybe_throw_unhandled(hdl->env)) {
-      return false;
+      run = false;
     }
   }
-  return true;
+  return run;
 }
 
+// happens in the uv loop
 static void uvCallback(uv_async_t* handle) {
   auto hdl = (napi_itc_handle_t*)handle;
   if (!uvItcCallback(hdl)) {
@@ -120,11 +124,6 @@ napi_status napi_itc_init(
   void* userdata,
   napi_itc_handle* handle)
 {
-  napi_value resource_object, resource_name;
-
-  NAPI_CALL(napi_create_object(env, &resource_object));
-  NAPI_CALL(napi_create_string_utf8(env, "napi_itc_init", NAPI_AUTO_LENGTH, &resource_name));
-
   uv_loop_t* loop;
   NAPI_CALL(napi_get_uv_event_loop(env, &loop));
 
@@ -145,12 +144,12 @@ napi_status napi_itc_init(
 
 void napi_itc_complete(napi_itc_handle handle) {
   ((napi_itc_handle_t*)handle)->consumerQu.push(QUEUE_STOP);
-  uv_async_send(&((napi_itc_handle_t*)handle)->uv_async);
+  uv_async_send((uv_async_t*)handle);
 }
 
 void napi_itc_send(napi_itc_handle handle, void* data) {
   ((napi_itc_handle_t*)handle)->consumerQu.push(data);
-  uv_async_send(&((napi_itc_handle_t*)handle)->uv_async);
+  uv_async_send((uv_async_t*)handle);
 }
 
 EXTERN_C_END
