@@ -2,7 +2,6 @@
 #define __NAPI_ITC_QUEUE_H
 
 #include <node_api.h>
-#include <uv.h>
 
 #ifdef __cplusplus
   #define EXTERN_C_START extern "C" {

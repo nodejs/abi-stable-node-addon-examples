@@ -1,5 +1,6 @@
 #include "napi_itc_queue.h"
 #include "thread_safe_queue.h"
+#include <uv.h>
 
 static inline void maybe_throw_fatal(napi_env env, napi_status status, int line) {
   bool is_pending;

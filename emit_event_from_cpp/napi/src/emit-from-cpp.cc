@@ -1,6 +1,3 @@
-#include <node_api.h>
-#include <uv.h>
-
 #include <chrono>
 #include <thread>
 #include <iostream>
@@ -95,7 +92,7 @@ static napi_value CallEmit(napi_env env, napi_callback_info info) {
 static napi_value Init(napi_env env, napi_value exports) {
   napi_value callEmit;
   NAPI_CALL(env, napi_create_function(env, "", 0, CallEmit, nullptr, &callEmit));
-  NAPI_CALL(env, napi_set_named_property(env, exports, "callEmit", callEmit))
+  NAPI_CALL(env, napi_set_named_property(env, exports, "callEmit", callEmit));
   return exports;
 }
 
