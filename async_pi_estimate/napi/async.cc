@@ -38,6 +38,8 @@ void doneCalculation(napi_env env, napi_status status, void* param) {
   status = napi_create_double(env, data->estimate, &argv[1]);
   assert(status == napi_ok);
 
+  free(data);
+
   napi_value result;
   status = napi_call_function(env, global, callback, 2, argv, &result);
   assert(status == napi_ok);
